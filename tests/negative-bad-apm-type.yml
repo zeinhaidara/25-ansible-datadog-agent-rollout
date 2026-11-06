@@ -1,0 +1,12 @@
+---
+# datadog_apm_enabled is deliberately a string, not a boolean - the role's assert task must
+# reject it with a clear message instead of templating a wrong value.
+- name: Confirm a non-boolean apm_enabled is rejected
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    datadog_api_key: fake-test-key
+    datadog_apm_enabled: "yes-please"
+  roles:
+    - datadog_agent
