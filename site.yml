@@ -1,0 +1,6 @@
+---
+- name: Roll out the Datadog agent
+  hosts: all
+  gather_facts: true
+  roles:
+    - datadog_agent

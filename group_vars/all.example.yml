@@ -1,0 +1,10 @@
+---
+datadog_site: datadoghq.com
+datadog_tags:
+  env: staging
+  service: checkout
+  team: payments
+datadog_apm_enabled: true
+
+# datadog_api_key must come from the environment or Vault, never set here. For example:
+# datadog_api_key: "{{ lookup('env', 'DATADOG_API_KEY') }}"
