@@ -11,8 +11,8 @@ Windows) or a real Datadog account - see Status below.
 
 ```mermaid
 flowchart TD
-    A[tasks/main.yml] -->|assert| B[datadog_api_key is set]
-    A -->|assert| C[datadog_apm_enabled is boolean]
+    A[tasks/main.yml] -->|assert| B[datadog_agent_api_key is set]
+    A -->|assert| C[datadog_agent_apm_enabled is boolean]
     A -->|ansible_os_family| D{Debian / RedHat / Windows}
     D -->|Debian| E[debian.yml: apt repo + package]
     D -->|RedHat| F[redhat.yml: yum repo + package]
@@ -35,9 +35,9 @@ flowchart TD
   is running.
 - `roles/datadog_agent/templates/datadog.yaml.j2` - one template for every OS: `api_key`,
   `site`, `tags` (a dict rendered to the agent's `key:value` tag list), and `apm_config.enabled`.
-- `roles/datadog_agent/defaults/main.yml` - `datadog_site`, `datadog_tags: {}`,
-  `datadog_apm_enabled: false`, and `datadog_config_path` (OS-appropriate default, overridable -
-  see Tests). No default for `datadog_api_key` - see Security considerations.
+- `roles/datadog_agent/defaults/main.yml` - `datadog_agent_site`, `datadog_agent_tags: {}`,
+  `datadog_agent_apm_enabled: false`, and `datadog_agent_config_path` (OS-appropriate default, overridable -
+  see Tests). No default for `datadog_agent_api_key` - see Security considerations.
 
 ## Prerequisites
 
@@ -54,7 +54,7 @@ ansible-galaxy collection install -r requirements.yml
 
 export DATADOG_API_KEY=change-me
 ansible-playbook -i inventory/hosts.example.ini site.yml \
-  -e "datadog_api_key={{ lookup('env', 'DATADOG_API_KEY') }}" \
+  -e "datadog_agent_api_key={{ lookup('env', 'DATADOG_API_KEY') }}" \
   -e "@group_vars/all.example.yml"
 ```
 
@@ -63,7 +63,7 @@ IPs) and `group_vars/all.example.yml` for sample `tags`/`apm_enabled` values.
 
 ## APM
 
-When `datadog_apm_enabled: true`, the rendered config sets `apm_config.enabled: true`, which is
+When `datadog_agent_apm_enabled: true`, the rendered config sets `apm_config.enabled: true`, which is
 what turns on the Datadog trace agent. **What this proves:** the agent is configured to accept
 traces. **What this does not prove:** that the application is actually instrumented to send
 traces, that traces reach Datadog, or that APM data appears correctly in the Datadog UI - none
@@ -71,7 +71,7 @@ of that has been exercised, because this repo never ran against a real agent or 
 
 ## Security considerations
 
-- `datadog_api_key` has no default and is never read from this repo - it must come from the
+- `datadog_agent_api_key` has no default and is never read from this repo - it must come from the
   caller, typically `lookup('env', 'DATADOG_API_KEY')` or an Ansible Vault-encrypted variable.
   `tasks/main.yml`'s first task asserts it's set and non-empty before anything else runs; a
   missing key fails the play with a specific message rather than templating an empty one.
@@ -104,12 +104,12 @@ bash tests/run.sh
   Debian, RedHat, and Windows.
 - A check-mode, `--tags datadog_config` run of `tests/check-mode-config.yml` against
   `localhost`, once faking the Debian path and once faking the Windows path, with
-  `datadog_config_path` overridden to a throwaway file (no real system path touched, no root
+  `datadog_agent_config_path` overridden to a throwaway file (no real system path touched, no root
   needed). Asserts the check-mode diff output contains the configured tags and
   `apm_config.enabled: true`.
 - `tests/negative-missing-api-key.yml` - confirms the play fails with the exact expected
-  message when `datadog_api_key` is unset.
-- `tests/negative-bad-apm-type.yml` - confirms a non-boolean `datadog_apm_enabled` is rejected
+  message when `datadog_agent_api_key` is unset.
+- `tests/negative-bad-apm-type.yml` - confirms a non-boolean `datadog_agent_apm_enabled` is rejected
   with the exact expected message.
 
 **This machine cannot run any of the above locally.** `ansible-core` does not run on this
@@ -138,5 +138,5 @@ it locally.
 - The Windows path's actual MSI install and service management
   (`ansible.windows.win_package`/`win_service`) have never been exercised at all - they can't
   be, without a real Windows target; only their YAML syntax has been checked.
-- `datadog_config_path`'s override exists specifically to make the config-rendering task
+- `datadog_agent_config_path`'s override exists specifically to make the config-rendering task
   testable without root or a real system path - production use should leave it at the default.

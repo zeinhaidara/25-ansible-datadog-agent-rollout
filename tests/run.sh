@@ -23,7 +23,7 @@ check() {
 
 # --- syntax-check, one per OS path ---
 for os in Debian RedHat Windows; do
-  ansible-playbook site.yml --syntax-check -e "ansible_os_family=$os" -e "datadog_api_key=fake-test-key" \
+  ansible-playbook site.yml --syntax-check -e "ansible_os_family=$os" -e "datadog_agent_api_key=fake-test-key" \
     >/tmp/syntax-check-"$os".log 2>&1
   check "syntax-check passes faking ansible_os_family=$os" "$?"
 done
@@ -46,7 +46,7 @@ OUT=$(ansible-playbook tests/negative-missing-api-key.yml 2>&1)
 RC=$?
 [ "$RC" != "0" ]
 check "missing api key fails the play" "$?"
-echo "$OUT" | grep -q "datadog_api_key is not set"
+echo "$OUT" | grep -q "datadog_agent_api_key is not set"
 check "missing api key failure message is the expected one" "$?"
 
 # --- negative: a non-boolean apm_enabled is rejected ---
@@ -54,7 +54,7 @@ OUT=$(ansible-playbook tests/negative-bad-apm-type.yml 2>&1)
 RC=$?
 [ "$RC" != "0" ]
 check "bad apm_enabled type fails the play" "$?"
-echo "$OUT" | grep -q "datadog_apm_enabled must be true or false"
+echo "$OUT" | grep -q "datadog_agent_apm_enabled must be true or false"
 check "bad apm_enabled failure message is the expected one" "$?"
 
 rm -f /tmp/datadog-test-config-*.yaml /tmp/syntax-check-*.log
