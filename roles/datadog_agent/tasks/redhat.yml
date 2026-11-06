@@ -1,0 +1,36 @@
+---
+- name: Add the Datadog yum repository
+  ansible.builtin.yum_repository:
+    name: datadog
+    description: Datadog, Inc.
+    baseurl: https://yum.datadoghq.com/stable/7/x86_64/
+    gpgcheck: true
+    gpgkey: https://keys.datadoghq.com/DATADOG_RPM_KEY_CURRENT.public
+  become: true
+  tags: [datadog_install]
+
+- name: Install the Datadog agent package
+  ansible.builtin.dnf:
+    name: datadog-agent
+    state: present
+  become: true
+  tags: [datadog_install]
+
+- name: Render the Datadog agent config
+  ansible.builtin.template:
+    src: datadog.yaml.j2
+    dest: "{{ datadog_agent_config_path }}"
+    owner: dd-agent
+    group: dd-agent
+    mode: "0640"
+  become: true
+  notify: Restart datadog-agent
+  tags: [datadog_config]
+
+- name: Ensure the Datadog agent service is running
+  ansible.builtin.service:
+    name: datadog-agent
+    state: started
+    enabled: true
+  become: true
+  tags: [datadog_install]

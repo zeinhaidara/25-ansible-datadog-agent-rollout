@@ -1,0 +1,13 @@
+---
+datadog_agent_site: datadoghq.com
+datadog_agent_tags: {}
+datadog_agent_apm_enabled: false
+# datadog_agent_api_key has no default on purpose - it must come from the caller (an
+# environment variable lookup or Ansible Vault), never a plaintext default. tasks/main.yml
+# asserts it's actually set before doing anything else.
+
+# Overridable so tests can point this at a throwaway path instead of a real system location -
+# production runs should leave this at the default for the host's OS.
+datadog_agent_config_path: >-
+  {{ 'C:\\ProgramData\\Datadog\\datadog.yaml' if ansible_os_family == 'Windows'
+     else '/etc/datadog-agent/datadog.yaml' }}

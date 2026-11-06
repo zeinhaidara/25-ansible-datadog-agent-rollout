@@ -1,0 +1,18 @@
+---
+# Exercises only the config-rendering task (datadog_config tag) against localhost, with
+# ansible_os_family faked via -e so the same run can cover the Debian path or the Windows path
+# without a real host of either kind. datadog_agent_config_path is overridden to a throwaway file so
+# nothing needs root and no real system path is touched.
+- name: Verify the datadog_agent role renders its config correctly
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    datadog_agent_api_key: fake-test-key
+    datadog_agent_tags:
+      env: test
+      service: checkout
+    datadog_agent_apm_enabled: true
+    datadog_agent_config_path: "{{ lookup('env', 'TEST_CONFIG_PATH') | default('/tmp/datadog-agent-test-config.yaml', true) }}"
+  roles:
+    - datadog_agent

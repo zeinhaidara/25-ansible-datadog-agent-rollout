@@ -1,0 +1,33 @@
+---
+- name: Assert the Datadog API key was supplied
+  ansible.builtin.assert:
+    that:
+      - (datadog_agent_api_key | default('')) | trim | length > 0
+    fail_msg: >-
+      datadog_agent_api_key is not set. Supply it from an environment variable (for example via
+      lookup('env', 'DATADOG_API_KEY')) or Ansible Vault - never a plaintext default.
+    quiet: true
+
+- name: Assert apm_enabled is a boolean
+  ansible.builtin.assert:
+    that:
+      - datadog_agent_apm_enabled is boolean
+    fail_msg: >-
+      datadog_agent_apm_enabled must be true or false, got
+      {{ datadog_agent_apm_enabled | type_debug }}: {{ datadog_agent_apm_enabled }}
+    quiet: true
+
+- name: Install and configure the agent on Debian family hosts
+  ansible.builtin.include_tasks: debian.yml
+  when: ansible_os_family == "Debian"
+  tags: [datadog_install, datadog_config]
+
+- name: Install and configure the agent on RedHat family hosts
+  ansible.builtin.include_tasks: redhat.yml
+  when: ansible_os_family == "RedHat"
+  tags: [datadog_install, datadog_config]
+
+- name: Install and configure the agent on Windows hosts
+  ansible.builtin.include_tasks: windows.yml
+  when: ansible_os_family == "Windows"
+  tags: [datadog_install, datadog_config]

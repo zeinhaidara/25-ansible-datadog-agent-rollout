@@ -1,0 +1,11 @@
+---
+# datadog_agent_api_key is deliberately left unset - the role's assert task must fail the play with
+# a clear message, not proceed with an empty key.
+- name: Confirm the play fails without an API key
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    datadog_agent_apm_enabled: false
+  roles:
+    - datadog_agent

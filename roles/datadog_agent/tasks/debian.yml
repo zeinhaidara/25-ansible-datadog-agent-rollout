@@ -1,0 +1,42 @@
+---
+- name: Add the Datadog apt signing key
+  ansible.builtin.apt_key:
+    url: https://keys.datadoghq.com/DATADOG_APT_KEY_CURRENT.public
+    state: present
+  become: true
+  tags: [datadog_install]
+
+- name: Add the Datadog apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb https://apt.datadoghq.com/ stable main"
+    state: present
+    filename: datadog
+  become: true
+  tags: [datadog_install]
+
+- name: Install the Datadog agent package
+  ansible.builtin.apt:
+    name: datadog-agent
+    state: present
+    update_cache: true
+  become: true
+  tags: [datadog_install]
+
+- name: Render the Datadog agent config
+  ansible.builtin.template:
+    src: datadog.yaml.j2
+    dest: "{{ datadog_agent_config_path }}"
+    owner: dd-agent
+    group: dd-agent
+    mode: "0640"
+  become: true
+  notify: Restart datadog-agent
+  tags: [datadog_config]
+
+- name: Ensure the Datadog agent service is running
+  ansible.builtin.service:
+    name: datadog-agent
+    state: started
+    enabled: true
+  become: true
+  tags: [datadog_install]
