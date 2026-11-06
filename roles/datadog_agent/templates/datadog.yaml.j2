@@ -1,0 +1,8 @@
+api_key: {{ datadog_api_key }}
+site: {{ datadog_site }}
+tags:
+{% for key, value in datadog_tags.items() -%}
+  - {{ key }}:{{ value }}
+{% endfor %}
+apm_config:
+  enabled: {{ datadog_apm_enabled | lower }}

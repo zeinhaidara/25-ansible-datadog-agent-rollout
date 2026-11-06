@@ -1,0 +1,12 @@
+---
+- name: Restart datadog-agent
+  ansible.builtin.service:
+    name: datadog-agent
+    state: restarted
+  listen: Restart datadog-agent
+
+- name: Restart datadog-agent (Windows)
+  ansible.windows.win_service:
+    name: DatadogAgent
+    state: restarted
+  listen: Restart datadog-agent (Windows)
