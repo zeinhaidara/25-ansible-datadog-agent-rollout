@@ -3,3 +3,6 @@
 .vault_pass
 __pycache__/
 .ansible/
+*.tfplan
+*.pyc
+memory/

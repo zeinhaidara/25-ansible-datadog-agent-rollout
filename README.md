@@ -1,4 +1,4 @@
-# ansible-datadog-agent-rollout
+# Datadog agent rollout role
 
 An Ansible role that installs and configures the Datadog agent across mixed Linux/Windows
 fleets, with tagging and optional APM instrumentation.
@@ -88,7 +88,7 @@ should show no changes - this is checked for the config-rendering task specifica
 Tests); it has never been checked end to end against a real host's actual package/service
 state, since there is no real host to check it against.
 
-## Tests
+## Validation
 
 ```bash
 pip install -r requirements.txt
@@ -112,13 +112,7 @@ bash tests/run.sh
 - `tests/negative-bad-apm-type.yml` - confirms a non-boolean `datadog_agent_apm_enabled` is rejected
   with the exact expected message.
 
-**This machine cannot run any of the above locally.** `ansible-core` does not run on this
-Windows machine at all - confirmed in earlier challenges, it fails importing `grp`, a Unix-only
-stdlib module, before it can do anything else. Every command above was read and reasoned
-through, and every YAML file and the Jinja2 template were validated locally with Python's own
-`yaml` and `jinja2` libraries (no `ansible-core` needed for that), but `ansible-lint`,
-`ansible-playbook`, and the actual test run are CI-only - their result in this PR is whatever
-CI reports, not a locally-reproduced claim.
+The Ansible checks run on Linux in CI. Windows is not a supported Ansible control node (`grp` is unavailable), so local Windows inspection covers YAML and Jinja syntax only. CI results provide the Ansible lint, syntax, check-mode and negative-test evidence; no real host or Datadog account was exercised.
 
 No binaries are downloaded in CI for this challenge - `ansible-core`, `ansible-lint`,
 `yamllint`, and the `ansible.windows` collection all come through `pip`/`ansible-galaxy`'s own
@@ -128,10 +122,9 @@ package integrity, not a raw `curl` this repo would need to checksum itself.
 
 Never run against a real Linux host, a real Windows host, or a real Datadog account.
 Validated only with `yamllint`, `ansible-lint`, `--syntax-check`, and the check-mode/negative
-tests described above, all via CI - this machine cannot run `ansible-core` to reproduce any of
-it locally.
+tests described above, all via Linux CI.
 
-## Known limits
+## Known limitations
 
 - One role, one config template, three OS paths - matching the problem statement exactly. No
   dashboards, no monitors, no extra Datadog integrations.
