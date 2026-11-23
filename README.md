@@ -3,6 +3,10 @@
 An Ansible role that installs and configures the Datadog agent across mixed Linux/Windows
 fleets, with tagging and optional APM instrumentation.
 
+Why it matters: installing the agent by hand on each host leads to missing tags, mixed agent
+settings and hosts that never report. One role applies the same configuration to Linux and
+Windows hosts and refuses to run without an API key.
+
 **Scope.** Datadog only - New Relic is explicitly out of scope. No dashboards, no monitors, no
 extra Datadog integrations beyond the agent itself. Never run against a real host (Linux or
 Windows) or a real Datadog account - see Status below.
